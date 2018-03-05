@@ -4,7 +4,7 @@
   <div class="col s12 m6">
     <ul>
       <% @games.each do |game| %>
-        <li class="game-item" data-id=<%=g ame.id %>>
+        <li class="game-item" data-id=<%= game.id %>>
           <%= game.name %> - <%= game.description %>
         </li>
         <% end %>
