@@ -6,12 +6,13 @@
     <ul id="games-list">
       <% @games.each do |game| %>
         <%= render partial: 'game', locals: { game: game } %>
-      <% end %>
+          <% end %>
     </ul>
   </div>
   <div class="row" id="character-list">
     <h3 id="game">Characters in Game</h2>
-    <ul id="characters">
-    </ul>
+      <ul id="characters">
+      </ul>
   </div>
 </div>
+
