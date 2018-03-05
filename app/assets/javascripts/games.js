@@ -1,43 +1,79 @@
+//Game state
 var currentGame = {}
 var showForm = false
+var editingGame;
 
-$(document).ready(function() {
-  $("#toggle").on("click", function() {
-    showForm = !showForm;
-    $("#game-form").remove();
-    $("#games-list").toggle();
+//Helper functions
+function toggleForm() {
+  showForm = !showForm;
+  $('#game-form').remove();
+  $('#games-list').toggle();
 
-    if (showForm) {
-      $.ajax({
-        url: "/game_form",
-        method: "GET"
-      }).done(function(html) {
-        $("#toggle").after(html);
-      });
-    }
-  });
-  $(".game-item").on("click", function() {
-    currentGame.id = this.dataset.id
-    currentGame.name = this.dataset.name
+  if (showForm) {
     $.ajax({
-      url: "/games/" + currentGame.id + "/characters",
-      type: "GET",
-      dataType: "JSON"
-    }).done(function(characters) {
-      $('#game').text('Characters in ' + currentGame.name); 
-      var list = $("#characters");
+      url: '/game_form',
+      method: 'GET',
+      data: { id: editingGame }
+    }).done( function(html) {
+      $('#toggle').after(html)
+    });
+  }
+}
+
+function getGame(id) {
+  $.ajax({
+    url: '/games/' + id,
+    type: 'GET'
+  }).done( function(game) {
+    $('#games-list').append(game);
+  });
+}
+
+$(document).ready( function() {
+  $(document).on('click', '#edit-game', function() {
+    editingGame = $(this).siblings('.game-item').data().id
+    toggleForm();
+  });
+
+  //Form submit handler
+  $(document).on('submit', '#game-form form', function(e) {
+    e.preventDefault();
+    var data = $(this).serializeArray();
+    $.ajax({
+      url: '/games',
+      type: 'POST',
+      dataType: 'JSON',
+      data: data
+    }).done( function(game) {
+      toggleForm();
+      getGame(game.id);
+    }).fail( function(err) {
+      alert(err.responseJSON.errors)
+    });
+  });
+
+  //Toggle form click handler
+  $('#toggle').on('click', function() {
+    toggleForm()
+  });
+
+  //Game select click handler
+  $(document).on('click', '.game-item', function() {
+    currentGame.id = this.dataset.id;
+    currentGame.name = this.dataset.name;
+    $.ajax({
+      url: '/games/' + currentGame.id + '/characters',
+      type: 'GET',
+      dataType: 'JSON'
+    }).done( function(characters) {
+      $('#game').text('Characters in ' + currentGame.name);
+      var list = $('#characters');
       list.empty();
-      characters.forEach(function(char) {
-        var li =
-          '<li data-character-id="' +
-          char.id +
-          '">' +
-          char.name +
-          " - " +
-          char.power +
-          "</li>";
-        list.append(li);
+      characters.forEach( function(char) {
+        var li = '<li data-character-id="' + char.id + '">' + char.name + ' - ' + char.power + '</li>'
+        list.append(li)
       });
     });
   });
 });
+

@@ -6,6 +6,7 @@ class GamesController < ApplicationController
   end
 
   def show
+    render partial: 'game', locals: { game: @game }
   end
 
   def form 
